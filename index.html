@@ -58,6 +58,15 @@
         }
         .btn:hover { background: var(--kalk-blue); transform: translateY(-2px); }
 
+        .lang-btn {
+            pointer-events: auto; cursor: pointer;
+            background: transparent; color: var(--kalk-text); padding: 8px 16px;
+            border-radius: 4px; font-weight: 600; border: 1px solid var(--kalk-text);
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            font-family: 'Inter', sans-serif; font-size: 0.9rem;
+        }
+        .lang-btn:hover { background: var(--kalk-text); color: white; }
+
         .hero-content { pointer-events: auto; max-width: 600px; margin-top: auto; margin-bottom: 100px; position: relative; z-index: 20; }
         h1 { font-family: 'Space Grotesk', sans-serif; font-size: 5rem; line-height: 0.9; margin: 0 0 24px 0; color: var(--kalk-text); opacity: 0; }
         h1 span { color: var(--kalk-blue); display: inline-block; }
@@ -161,20 +170,23 @@
     <div id="ui-layer">
         <nav class="nav-anim">
             <img src="logo.png" alt="KALK" class="logo">
-            <a onclick="openModal()" class="btn">Get Early Access</a>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="toggleLanguage()" class="lang-btn" id="lang-toggle">FR</button>
+                <a onclick="openModal()" class="btn" data-i18n="nav.cta">Get Early Access</a>
+            </div>
         </nav>
         <div class="hero-content">
-            <h1 class="text-anim">The end of <br> manual <span>takeoffs.</span></h1>
-            <p class="text-anim">Instant AI quantification for contractors. Turn blueprints into accurate estimates in seconds, not hours.</p>
-            <a onclick="openModal()" class="btn text-anim">Upload Floor Plan</a>
+            <h1 class="text-anim"><span data-i18n="hero.title1">The end of</span> <br> <span data-i18n="hero.title2">manual</span> <span data-i18n="hero.title3">takeoffs.</span></h1>
+            <p class="text-anim" data-i18n="hero.subtitle">Instant AI quantification for contractors. Turn blueprints into accurate estimates in seconds, not hours.</p>
+            <a onclick="openModal()" class="btn text-anim" data-i18n="hero.cta">Upload Floor Plan</a>
         </div>
-        <div id="tag-0" class="room-tag tag-accent-1"><strong>LIVING AREA</strong><span id="val-0" class="value">0</span> SQ.FT</div>
-        <div id="tag-1" class="room-tag tag-accent-2"><strong>KITCHEN</strong><span id="val-1" class="value">0</span> SQ.FT</div>
-        <div id="tag-2" class="room-tag tag-accent-3"><strong>MASTER SUITE</strong><span id="val-2" class="value">0</span> SQ.FT</div>
+        <div id="tag-0" class="room-tag tag-accent-1"><strong data-i18n="tags.living">LIVING AREA</strong><span id="val-0" class="value">0</span> <span data-i18n="tags.sqft">SQ.FT</span></div>
+        <div id="tag-1" class="room-tag tag-accent-2"><strong data-i18n="tags.kitchen">KITCHEN</strong><span id="val-1" class="value">0</span> <span data-i18n="tags.sqft">SQ.FT</span></div>
+        <div id="tag-2" class="room-tag tag-accent-3"><strong data-i18n="tags.master">MASTER SUITE</strong><span id="val-2" class="value">0</span> <span data-i18n="tags.sqft">SQ.FT</span></div>
         <div class="breakdown">
-            <div class="row" id="row-0">HARDWOOD <div class="dot" style="background:var(--accent-1)"></div></div>
-            <div class="row" id="row-1">CERAMIC TILE <div class="dot" style="background:var(--accent-2)"></div></div>
-            <div class="row" id="row-2">CARPET <div class="dot" style="background:var(--accent-3)"></div></div>
+            <div class="row" id="row-0"><span data-i18n="materials.hardwood">HARDWOOD</span> <div class="dot" style="background:var(--accent-1)"></div></div>
+            <div class="row" id="row-1"><span data-i18n="materials.tile">CERAMIC TILE</span> <div class="dot" style="background:var(--accent-2)"></div></div>
+            <div class="row" id="row-2"><span data-i18n="materials.carpet">CARPET</span> <div class="dot" style="background:var(--accent-3)"></div></div>
         </div>
     </div>
 
@@ -185,56 +197,56 @@
             
             <div class="modal-header">
                 <div class="modal-title">
-                    <span>SYSTEM ACCESS</span>
-                    <h2 id="modal-heading">Start Estimation</h2>
+                    <span data-i18n="modal.systemAccess">SYSTEM ACCESS</span>
+                    <h2 id="modal-heading" data-i18n="modal.heading">Start Estimation</h2>
                 </div>
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
-            
+
             <!-- FORM -->
             <form id="contact-form">
                 <div class="input-group">
-                    <label>Company Name</label>
-                    <input type="text" id="company" class="input-field" placeholder="ACME Construction" required>
+                    <label data-i18n="form.company">Company Name</label>
+                    <input type="text" id="company" class="input-field" data-i18n-placeholder="form.companyPlaceholder" placeholder="ACME Construction" required>
                 </div>
                 <div class="input-group">
-                    <label>Work Email</label>
-                    <input type="email" id="email" class="input-field" placeholder="estimator@company.com" required>
-                    <div class="error-msg" id="email-error">Please enter a valid email.</div>
+                    <label data-i18n="form.email">Work Email</label>
+                    <input type="email" id="email" class="input-field" data-i18n-placeholder="form.emailPlaceholder" placeholder="estimator@company.com" required>
+                    <div class="error-msg" id="email-error" data-i18n="form.emailError">Please enter a valid email.</div>
                 </div>
                 <!-- NEW PHONE FIELD -->
                 <div class="input-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="phone" class="input-field" placeholder="+1 (555) 000-0000" required>
+                    <label data-i18n="form.phone">Phone Number</label>
+                    <input type="tel" id="phone" class="input-field" data-i18n-placeholder="form.phonePlaceholder" placeholder="+1 (555) 000-0000" required>
                 </div>
                 <!-- NEW DIVISIONS DROPDOWN -->
                 <div class="input-group">
-                    <label>Construction Division</label>
+                    <label data-i18n="form.division">Construction Division</label>
                     <select id="division" class="input-field">
-                        <option value="flooring">Flooring</option>
-                        <option value="interior-systems">Interior Systems</option>
-                        <option value="interior-exterior-finishes">Interior and Exterior Finishes</option>
-                        <option value="doors-frames-windows">Doors, Frames and Windows</option>
-                        <option value="concrete-formwork">Concrete and Formwork</option>
-                        <option value="millwork">Millwork</option>
-                        <option value="electrical">Electrical</option>
-                        <option value="mechanical-systems">Mechanical Systems</option>
-                        <option value="telecommunications">Telecommunications</option>
-                        <option value="excavation">Excavation</option>
-                        <option value="soils">Soils</option>
-                        <option value="civil-works">Civil Works</option>
-                        <option value="other">Other</option>
+                        <option value="flooring" data-i18n="divisions.flooring">Flooring</option>
+                        <option value="interior-systems" data-i18n="divisions.interiorSystems">Interior Systems</option>
+                        <option value="interior-exterior-finishes" data-i18n="divisions.finishes">Interior and Exterior Finishes</option>
+                        <option value="doors-frames-windows" data-i18n="divisions.doors">Doors, Frames and Windows</option>
+                        <option value="concrete-formwork" data-i18n="divisions.concrete">Concrete and Formwork</option>
+                        <option value="millwork" data-i18n="divisions.millwork">Millwork</option>
+                        <option value="electrical" data-i18n="divisions.electrical">Electrical</option>
+                        <option value="mechanical-systems" data-i18n="divisions.mechanical">Mechanical Systems</option>
+                        <option value="telecommunications" data-i18n="divisions.telecom">Telecommunications</option>
+                        <option value="excavation" data-i18n="divisions.excavation">Excavation</option>
+                        <option value="soils" data-i18n="divisions.soils">Soils</option>
+                        <option value="civil-works" data-i18n="divisions.civil">Civil Works</option>
+                        <option value="other" data-i18n="divisions.other">Other</option>
                     </select>
                 </div>
-                <button type="button" id="submit-btn" class="submit-btn" onclick="submitForm()">INITIALIZE SCAN</button>
+                <button type="button" id="submit-btn" class="submit-btn" onclick="submitForm()" data-i18n="form.submit">INITIALIZE SCAN</button>
             </form>
 
             <!-- SUCCESS VIEW -->
             <div class="success-view" id="success-view">
                 <div class="success-icon">✓</div>
-                <h3>Request Received</h3>
-                <p>You've been added to the priority queue. <br>We will notify you when KALK v1.0 is ready for deployment.</p>
-                <button class="submit-btn back-btn" onclick="closeModal()">RETURN TO BLUEPRINT</button>
+                <h3 data-i18n="success.title">Request Received</h3>
+                <p data-i18n="success.message">You've been added to the priority queue. <br>We will notify you when KALK v1.0 is ready for deployment.</p>
+                <button class="submit-btn back-btn" onclick="closeModal()" data-i18n="success.back">RETURN TO BLUEPRINT</button>
             </div>
         </div>
     </div>
@@ -246,6 +258,159 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
+        // --- TRANSLATIONS ---
+        const translations = {
+            en: {
+                nav: { cta: "Get Early Access" },
+                hero: {
+                    title1: "The end of",
+                    title2: "manual",
+                    title3: "takeoffs.",
+                    subtitle: "Instant AI quantification for contractors. Turn blueprints into accurate estimates in seconds, not hours.",
+                    cta: "Upload Floor Plan"
+                },
+                tags: {
+                    living: "LIVING AREA",
+                    kitchen: "KITCHEN",
+                    master: "MASTER SUITE",
+                    sqft: "SQ.FT"
+                },
+                materials: {
+                    hardwood: "HARDWOOD",
+                    tile: "CERAMIC TILE",
+                    carpet: "CARPET"
+                },
+                modal: {
+                    systemAccess: "SYSTEM ACCESS",
+                    heading: "Start Estimation",
+                    confirmed: "System Confirmed"
+                },
+                form: {
+                    company: "Company Name",
+                    companyPlaceholder: "ACME Construction",
+                    email: "Work Email",
+                    emailPlaceholder: "estimator@company.com",
+                    emailError: "Please enter a valid email.",
+                    phone: "Phone Number",
+                    phonePlaceholder: "+1 (555) 000-0000",
+                    division: "Construction Division",
+                    submit: "INITIALIZE SCAN"
+                },
+                divisions: {
+                    flooring: "Flooring",
+                    interiorSystems: "Interior Systems",
+                    finishes: "Interior and Exterior Finishes",
+                    doors: "Doors, Frames and Windows",
+                    concrete: "Concrete and Formwork",
+                    millwork: "Millwork",
+                    electrical: "Electrical",
+                    mechanical: "Mechanical Systems",
+                    telecom: "Telecommunications",
+                    excavation: "Excavation",
+                    soils: "Soils",
+                    civil: "Civil Works",
+                    other: "Other"
+                },
+                success: {
+                    title: "Request Received",
+                    message: "You've been added to the priority queue. <br>We will notify you when KALK v1.0 is ready for deployment.",
+                    back: "RETURN TO BLUEPRINT"
+                }
+            },
+            fr: {
+                nav: { cta: "Obtenir un Accès Anticipé" },
+                hero: {
+                    title1: "La fin des",
+                    title2: "métrés",
+                    title3: "manuels.",
+                    subtitle: "Quantification IA instantanée pour entrepreneurs. Transformez les plans en estimations précises en quelques secondes.",
+                    cta: "Télécharger le Plan"
+                },
+                tags: {
+                    living: "SALON",
+                    kitchen: "CUISINE",
+                    master: "SUITE PRINCIPALE",
+                    sqft: "PI.CA"
+                },
+                materials: {
+                    hardwood: "BOIS FRANC",
+                    tile: "CÉRAMIQUE",
+                    carpet: "TAPIS"
+                },
+                modal: {
+                    systemAccess: "ACCÈS SYSTÈME",
+                    heading: "Démarrer l'Estimation",
+                    confirmed: "Système Confirmé"
+                },
+                form: {
+                    company: "Nom de l'Entreprise",
+                    companyPlaceholder: "Construction ACME",
+                    email: "Courriel Professionnel",
+                    emailPlaceholder: "estimateur@entreprise.com",
+                    emailError: "Veuillez entrer un courriel valide.",
+                    phone: "Numéro de Téléphone",
+                    phonePlaceholder: "+1 (555) 000-0000",
+                    division: "Division de Construction",
+                    submit: "INITIALISER LE SCAN"
+                },
+                divisions: {
+                    flooring: "Revêtements de Sol",
+                    interiorSystems: "Systèmes Intérieurs",
+                    finishes: "Finitions Intérieures et Extérieures",
+                    doors: "Portes, Cadres et Fenêtres",
+                    concrete: "Béton et Coffrages",
+                    millwork: "Menuiserie",
+                    electrical: "Électricité",
+                    mechanical: "Systèmes Mécaniques",
+                    telecom: "Télécommunications",
+                    excavation: "Excavation",
+                    soils: "Sols",
+                    civil: "Travaux de Génie Civil",
+                    other: "Autre"
+                },
+                success: {
+                    title: "Demande Reçue",
+                    message: "Vous avez été ajouté à la file prioritaire. <br>Nous vous aviserons lorsque KALK v1.0 sera prêt pour le déploiement.",
+                    back: "RETOUR AU PLAN"
+                }
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'fr' : 'en';
+            document.getElementById('lang-toggle').textContent = currentLang === 'en' ? 'FR' : 'EN';
+            updateContent();
+        }
+
+        function updateContent() {
+            const lang = translations[currentLang];
+
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const keys = el.getAttribute('data-i18n').split('.');
+                let value = lang;
+                keys.forEach(key => value = value[key]);
+
+                if (el.tagName === 'INPUT' || el.tagName === 'BUTTON') {
+                    if (el.type === 'button' || el.tagName === 'BUTTON') {
+                        el.textContent = value;
+                    }
+                } else {
+                    el.innerHTML = value;
+                }
+            });
+
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const keys = el.getAttribute('data-i18n-placeholder').split('.');
+                let value = lang;
+                keys.forEach(key => value = value[key]);
+                el.placeholder = value;
+            });
+        }
+
         // --- 3D CONFIGURATION ---
         const CONFIG = { colorBlue: new THREE.Color('#234C94'), colorBg: new THREE.Color('#f5f7fa') };
         const container = document.getElementById('canvas-container');
@@ -307,7 +472,8 @@
 
         window.openModal = function() {
             document.getElementById('contact-form').style.display='block'; document.getElementById('contact-form').style.opacity='1';
-            document.getElementById('success-view').style.display='none'; document.getElementById('modal-heading').innerText="Start Estimation";
+            document.getElementById('success-view').style.display='none';
+            document.getElementById('modal-heading').innerText=translations[currentLang].modal.heading;
             isModalOpen = true; document.getElementById('contact-overlay').classList.add('active'); document.body.classList.add('modal-open');
             ditherPlane.visible = true; gsap.to(ditherMat.uniforms.uOpacity, { value: 1.0, duration: 0.5 });
             gsap.to(camera, { zoom: 1.1, duration: 1.0, ease: "power2.out", onUpdate: () => camera.updateProjectionMatrix() });
@@ -352,7 +518,7 @@
                     gsap.to(form, {
                         opacity: 0, duration: 0.3,
                         onComplete: () => {
-                            form.style.display = 'none'; success.style.display = 'block'; heading.innerText = "System Confirmed";
+                            form.style.display = 'none'; success.style.display = 'block'; heading.innerText = translations[currentLang].modal.confirmed;
                             gsap.fromTo(success, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 });
                         }
                     });
