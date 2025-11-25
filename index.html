@@ -337,8 +337,8 @@
             btn.disabled = true;
 
             try {
-                // CHANGE THIS URL IF DEPLOYING (e.g., https://your-site.com/api/submit)
-                const response = await fetch('http://localhost:3000/api/submit', { 
+                // Use relative URL to work both locally and on Vercel
+                const response = await fetch('/api/submit', { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ company, email, phone, division })
