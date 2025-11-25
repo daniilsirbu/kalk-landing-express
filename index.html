@@ -158,6 +158,7 @@
         }
 
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #canvas-container canvas { display: block; }
         .vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 75% 50%, transparent 20%, rgba(245, 247, 250, 0.4) 60%, #f5f7fa 100%);
@@ -324,7 +325,7 @@
                     title2: "estimations",
                     title3: "manuelles.",
                     subtitle: "Quantification IA instantanée pour entrepreneurs. Transformez les plans en estimations précises en quelques secondes.",
-                    cta: "Télécharger le Plan"
+                    cta: "Téléverser le Plan"
                 },
                 tags: {
                     living: "SALON",
@@ -415,11 +416,11 @@
         const CONFIG = { colorBlue: new THREE.Color('#234C94'), colorBg: new THREE.Color('#f5f7fa') };
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene(); scene.background = CONFIG.colorBg;
-        scene.fog = new THREE.Fog(CONFIG.colorBg, 10, 25);
+        scene.fog = new THREE.Fog(CONFIG.colorBg, 20, 100);
         const aspect = window.innerWidth / window.innerHeight;
-        const d = 14;
-        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 100);
-        camera.position.set(10, 10, 10); camera.lookAt(-5, 0, -2);
+        const d = 16;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+        camera.position.set(20, 20, 20); camera.lookAt(0, 0, 0);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -433,7 +434,7 @@
             fragmentShader: `uniform float uOpacity; uniform vec2 uResolution; uniform vec3 uColor; float random (vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); } void main() { vec2 st = gl_FragCoord.xy / uResolution.xy; float noise = random(gl_FragCoord.xy * 0.5); vec3 color = uColor; float alpha = uOpacity * 0.85; if (noise < 0.1) alpha -= 0.1; gl_FragColor = vec4(color, alpha); }`
         });
         const ditherPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), ditherMat);
-        ditherPlane.visible = false; ditherPlane.renderOrder = 999; scene.add(ditherPlane);
+        ditherPlane.visible = false; ditherPlane.renderOrder = 999; ditherPlane.frustumCulled = false; scene.add(ditherPlane);
 
         const roomMat = new THREE.ShaderMaterial({
             vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
@@ -442,7 +443,7 @@
             transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.NormalBlending
         });
 
-        const gridHelper = new THREE.GridHelper(50, 50, 0xadb5bd, 0xe9ecef); gridHelper.position.y = -0.01; scene.add(gridHelper);
+        const gridHelper = new THREE.GridHelper(200, 200, 0xadb5bd, 0xe9ecef); gridHelper.position.y = -0.01; scene.add(gridHelper);
         const roomData = [{ w: 9, d: 9, x: 3, z: -1, color: '#228be6', type: 0, id: 0, maxArea: 540 }, { w: 5, d: 5, x: 10, z: -3, color: '#fa5252', type: 1, id: 1, maxArea: 180 }, { w: 6, d: 7, x: 10.5, z: 3, color: '#fab005', type: 2, id: 2, maxArea: 290 }];
         const rooms = [];
         roomData.forEach((data, index) => {
@@ -554,9 +555,12 @@
         }
         animate();
         window.addEventListener('resize', () => {
-            const a = window.innerWidth / window.innerHeight; camera.left = -d * a; camera.right = d * a; camera.top = d; camera.bottom = -d;
-            camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+    const a = window.innerWidth / window.innerHeight; 
+    camera.left = -d * a; camera.right = d * a; 
+    camera.top = d; 
+    camera.bottom = -d * 2; // <--- Updated here
+    camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
     </script>
 </body>
