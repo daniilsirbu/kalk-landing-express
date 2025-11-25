@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALK | AI Construction Estimator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@300;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
+        :root {
+            /* Palette */
+            --kalk-blue: #234C94;
+            --kalk-bg: #f5f7fa;
+            --kalk-text: #1a1a1a;
+            --kalk-text-sub: #555555;
+            --kalk-white: #ffffff;
+            --accent-1: #228be6;
+            --accent-2: #fa5252;
+            --accent-3: #fab005;
+            --success-green: #2b8a3e;
+            --error-red: #c92a2a;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--kalk-bg);
+            color: var(--kalk-text);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- UI LAYER --- */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 10;
+            display: flex; flex-direction: column;
+            justify-content: space-between; padding: 40px; box-sizing: border-box;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+        }
+        
+        body.modal-open #ui-layer { opacity: 0; pointer-events: none; filter: blur(4px); }
+
+        nav { display: flex; justify-content: space-between; align-items: center; pointer-events: auto; opacity: 0; }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            display: block;
+        }
+
+        .btn {
+            pointer-events: auto; cursor: pointer;
+            background: var(--kalk-text); color: white; padding: 12px 24px;
+            border-radius: 4px; font-weight: 600; text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            border: 1px solid transparent; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-family: 'Inter', sans-serif;
+        }
+        .btn:hover { background: var(--kalk-blue); transform: translateY(-2px); }
+
+        .hero-content { pointer-events: auto; max-width: 600px; margin-top: auto; margin-bottom: 100px; position: relative; z-index: 20; }
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: 5rem; line-height: 0.9; margin: 0 0 24px 0; color: var(--kalk-text); opacity: 0; }
+        h1 span { color: var(--kalk-blue); display: inline-block; }
+        p { font-size: 1.1rem; line-height: 1.6; color: var(--kalk-text-sub); max-width: 450px; margin-bottom: 32px; opacity: 0; }
+
+        /* Tags & Legend */
+        .room-tag {
+            position: absolute; transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(4px); padding: 8px 16px; border-radius: 4px;
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem;
+            opacity: 0; pointer-events: none; z-index: 15; color: var(--kalk-text);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: opacity 0.5s ease;
+        }
+        .room-tag strong { display: block; font-size: 0.7rem; color: #999; letter-spacing: 1px; margin-bottom: 2px; }
+        .room-tag .value { font-size: 1.2rem; font-weight: 700; }
+        .tag-accent-1 .value { color: var(--accent-1); } .tag-accent-2 .value { color: var(--accent-2); } .tag-accent-3 .value { color: var(--accent-3); }
+
+        .breakdown { position: absolute; bottom: 40px; right: 40px; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; text-align: right; pointer-events: none; z-index: 20; }
+        .row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 8px; opacity: 0.3; transition: opacity 0.3s; color: var(--kalk-text); font-weight: 600; }
+        .row.active { opacity: 1; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* --- CONTACT MODAL --- */
+        #contact-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #contact-overlay.active { opacity: 1; pointer-events: auto; visibility: visible; }
+
+        .modal-card {
+            background: rgba(255, 255, 255, 0.95); width: 100%; max-width: 500px; padding: 48px;
+            border-radius: 2px; position: relative;
+            transform: translateY(40px) scale(0.95);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+        }
+        #contact-overlay.active .modal-card { transform: translateY(0) scale(1); }
+
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 24px; align-items: flex-start; }
+        .modal-title h2 { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; margin: 0; line-height: 1; color: var(--kalk-text); }
+        .modal-title span { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--kalk-blue); display: block; margin-bottom: 8px; letter-spacing: 0.05em; }
+        
+        .close-btn { 
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; 
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid transparent; transition: all 0.2s;
+        }
+        .close-btn:hover { color: var(--kalk-text); border: 1px solid #ddd; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #666; margin-bottom: 6px; text-transform: uppercase; }
+        .input-field {
+            width: 100%; box-sizing: border-box; background: #f0f2f5; border: 1px solid transparent;
+            padding: 12px 16px; font-size: 1rem; color: var(--kalk-text); font-family: 'Inter', sans-serif;
+            transition: all 0.3s; border-radius: 2px;
+        }
+        .input-field:focus { background: #fff; border-color: var(--kalk-blue); outline: none; box-shadow: 0 0 0 4px rgba(35, 76, 148, 0.1); }
+
+        /* Error state */
+        .input-field.error { border-color: var(--error-red); background: #fff5f5; }
+        .error-msg { color: var(--error-red); font-size: 0.8rem; margin-top: 5px; display: none; }
+
+        .submit-btn {
+            width: 100%; background: var(--kalk-blue); color: white;
+            padding: 16px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem;
+            border: none; cursor: pointer; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover { background: #1a3a75; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .submit-btn::after { content: "→"; font-family: sans-serif; }
+        .submit-btn.loading::after { content: "..."; }
+
+        .success-view { display: none; opacity: 0; text-align: center; padding: 20px 0; }
+        .success-icon { font-size: 3rem; color: var(--success-green); margin-bottom: 20px; display: inline-block; }
+        .success-view h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin: 0 0 10px 0; }
+        .success-view p { font-size: 1rem; color: #666; margin-bottom: 20px; line-height: 1.5; opacity: 1; }
+        .back-btn { background: transparent; color: var(--kalk-text); border: 1px solid #ddd; width: auto; padding: 12px 24px; margin: 0 auto; display: inline-block; }
+        .back-btn:hover { background: #f5f5f5; }
+        .back-btn::after { content: ""; }
+
+        .noise-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+            background: repeating-linear-gradient(90deg, var(--kalk-blue) 0, var(--kalk-blue) 25%, transparent 25%, transparent 50%);
+            background-size: 10px 100%; opacity: 0.2;
+        }
+
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 75% 50%, transparent 20%, rgba(245, 247, 250, 0.4) 60%, #f5f7fa 100%);
+            pointer-events: none; z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <nav class="nav-anim">
+            <img src="logo.png" alt="KALK" class="logo">
+            <a onclick="openModal()" class="btn">Get Early Access</a>
+        </nav>
+        <div class="hero-content">
+            <h1 class="text-anim">The end of <br> manual <span>takeoffs.</span></h1>
+            <p class="text-anim">Instant AI quantification for contractors. Turn blueprints into accurate estimates in seconds, not hours.</p>
+            <a onclick="openModal()" class="btn text-anim">Upload Floor Plan</a>
+        </div>
+        <div id="tag-0" class="room-tag tag-accent-1"><strong>LIVING AREA</strong><span id="val-0" class="value">0</span> SQ.FT</div>
+        <div id="tag-1" class="room-tag tag-accent-2"><strong>KITCHEN</strong><span id="val-1" class="value">0</span> SQ.FT</div>
+        <div id="tag-2" class="room-tag tag-accent-3"><strong>MASTER SUITE</strong><span id="val-2" class="value">0</span> SQ.FT</div>
+        <div class="breakdown">
+            <div class="row" id="row-0">HARDWOOD <div class="dot" style="background:var(--accent-1)"></div></div>
+            <div class="row" id="row-1">CERAMIC TILE <div class="dot" style="background:var(--accent-2)"></div></div>
+            <div class="row" id="row-2">CARPET <div class="dot" style="background:var(--accent-3)"></div></div>
+        </div>
+    </div>
+
+    <!-- CONTACT OVERLAY -->
+    <div id="contact-overlay">
+        <div class="modal-card">
+            <div class="noise-overlay"></div>
+            
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>SYSTEM ACCESS</span>
+                    <h2 id="modal-heading">Start Estimation</h2>
+                </div>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <!-- FORM -->
+            <form id="contact-form">
+                <div class="input-group">
+                    <label>Company Name</label>
+                    <input type="text" id="company" class="input-field" placeholder="ACME Construction" required>
+                </div>
+                <div class="input-group">
+                    <label>Work Email</label>
+                    <input type="email" id="email" class="input-field" placeholder="estimator@company.com" required>
+                    <div class="error-msg" id="email-error">Please enter a valid email.</div>
+                </div>
+                <!-- NEW PHONE FIELD -->
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" class="input-field" placeholder="+1 (555) 000-0000" required>
+                </div>
+                <!-- NEW DIVISIONS DROPDOWN -->
+                <div class="input-group">
+                    <label>Construction Division</label>
+                    <select id="division" class="input-field">
+                        <option value="01-general">Div 01 - General Requirements</option>
+                        <option value="03-concrete">Div 03 - Concrete</option>
+                        <option value="04-masonry">Div 04 - Masonry</option>
+                        <option value="05-metals">Div 05 - Metals</option>
+                        <option value="06-wood">Div 06 - Wood/Plastics/Composites</option>
+                        <option value="08-openings">Div 08 - Openings (Doors/Windows)</option>
+                        <option value="09-finishes">Div 09 - Finishes</option>
+                        <option value="22-plumbing">Div 22 - Plumbing</option>
+                        <option value="26-electrical">Div 26 - Electrical</option>
+                        <option value="other">Other / General Contractor</option>
+                    </select>
+                </div>
+                <button type="button" id="submit-btn" class="submit-btn" onclick="submitForm()">INITIALIZE SCAN</button>
+            </form>
+
+            <!-- SUCCESS VIEW -->
+            <div class="success-view" id="success-view">
+                <div class="success-icon">✓</div>
+                <h3>Request Received</h3>
+                <p>You've been added to the priority queue. <br>We will notify you when KALK v1.0 is ready for deployment.</p>
+                <button class="submit-btn back-btn" onclick="closeModal()">RETURN TO BLUEPRINT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vignette"></div>
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // --- 3D CONFIGURATION ---
+        const CONFIG = { colorBlue: new THREE.Color('#234C94'), colorBg: new THREE.Color('#f5f7fa') };
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene(); scene.background = CONFIG.colorBg;
+        scene.fog = new THREE.Fog(CONFIG.colorBg, 10, 25);
+        const aspect = window.innerWidth / window.innerHeight;
+        const d = 14;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 100);
+        camera.position.set(10, 10, 10); camera.lookAt(-5, 0, -2);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // --- SHADERS & MESHES ---
+        const ditherMat = new THREE.ShaderMaterial({
+            transparent: true,
+            uniforms: { uOpacity: { value: 0.0 }, uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }, uColor: { value: new THREE.Color('#234C94') } },
+            vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
+            fragmentShader: `uniform float uOpacity; uniform vec2 uResolution; uniform vec3 uColor; float random (vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); } void main() { vec2 st = gl_FragCoord.xy / uResolution.xy; float noise = random(gl_FragCoord.xy * 0.5); vec3 color = uColor; float alpha = uOpacity * 0.85; if (noise < 0.1) alpha -= 0.1; gl_FragColor = vec4(color, alpha); }`
+        });
+        const ditherPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), ditherMat);
+        ditherPlane.visible = false; ditherPlane.renderOrder = 999; scene.add(ditherPlane);
+
+        const roomMat = new THREE.ShaderMaterial({
+            vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `uniform vec3 uColor; uniform float uProgress; uniform float uType; varying vec2 vUv; void main() { vec2 st = vUv * 30.0; float pattern = 0.0; if(uType < 0.5) { vec2 grid = fract(st) - 0.5; pattern = 1.0 - smoothstep(0.05, 0.1, length(grid)); } else if (uType < 1.5) { float d = fract((st.x + st.y) * 0.5); pattern = step(0.5, d); } else { float d1 = step(0.8, fract(st.x)); float d2 = step(0.8, fract(st.y)); pattern = max(d1, d2); } float revealLine = (vUv.x + vUv.y) * 0.55; float visible = step(revealLine, uProgress); float edge = 1.0 - abs(revealLine - uProgress); edge = smoothstep(0.95, 1.0, edge); vec3 finalColor = uColor; float alpha = (visible * 0.1) + (visible * pattern * 0.6) + (edge * visible * 0.5); gl_FragColor = vec4(finalColor, alpha); }`,
+            uniforms: { uColor: { value: new THREE.Color() }, uProgress: { value: 0 }, uType: { value: 0 } },
+            transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.NormalBlending
+        });
+
+        const gridHelper = new THREE.GridHelper(50, 50, 0xadb5bd, 0xe9ecef); gridHelper.position.y = -0.01; scene.add(gridHelper);
+        const roomData = [{ w: 9, d: 9, x: 3, z: -1, color: '#228be6', type: 0, id: 0, maxArea: 540 }, { w: 5, d: 5, x: 10, z: -3, color: '#fa5252', type: 1, id: 1, maxArea: 180 }, { w: 6, d: 7, x: 10.5, z: 3, color: '#fab005', type: 2, id: 2, maxArea: 290 }];
+        const rooms = [];
+        roomData.forEach((data, index) => {
+            const mat = roomMat.clone(); mat.uniforms.uColor.value = new THREE.Color(data.color); mat.uniforms.uType.value = data.type;
+            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(data.w, data.d).rotateX(-Math.PI/2), mat);
+            mesh.position.set(data.x, 0.05 * index, data.z);
+            const line = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), new THREE.LineBasicMaterial({ color: data.color }));
+            const shadow = new THREE.Mesh(mesh.geometry, new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.1, transparent: true }));
+            shadow.position.y = -0.1 - (index * 0.01);
+            mesh.add(line); mesh.add(shadow); scene.add(mesh);
+            rooms.push({ mesh, id: data.id, maxArea: data.maxArea });
+        });
+
+        // --- ANIMATION ---
+        function scanRoom(index) {
+            const r = rooms[index]; document.getElementById(`tag-${index}`).style.opacity=1; document.getElementById(`row-${index}`).classList.add('active');
+            gsap.to(r.mesh.material.uniforms.uProgress, { value: 1.2, duration: 1.5, ease: "power2.inOut" });
+            const o = {v:0}; gsap.to(o,{v:r.maxArea,duration:1.5,ease:"power2.inOut",onUpdate:()=>document.getElementById(`val-${index}`).innerText=Math.floor(o.v)});
+        }
+        gsap.timeline()
+            .to(".nav-anim", { opacity: 1, duration: 1, y: 0 })
+            .fromTo(".text-anim", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: "power3.out" }, "-=0.5")
+            .call(()=>scanRoom(0), null, "-=0.5").to({}, { duration: 0.4 }).call(()=>scanRoom(1)).to({}, { duration: 0.4 }).call(()=>scanRoom(2));
+
+        // --- MODAL LOGIC & BACKEND CONNECTION ---
+        let isModalOpen = false;
+
+        window.openModal = function() {
+            document.getElementById('contact-form').style.display='block'; document.getElementById('contact-form').style.opacity='1';
+            document.getElementById('success-view').style.display='none'; document.getElementById('modal-heading').innerText="Start Estimation";
+            isModalOpen = true; document.getElementById('contact-overlay').classList.add('active'); document.body.classList.add('modal-open');
+            ditherPlane.visible = true; gsap.to(ditherMat.uniforms.uOpacity, { value: 1.0, duration: 0.5 });
+            gsap.to(camera, { zoom: 1.1, duration: 1.0, ease: "power2.out", onUpdate: () => camera.updateProjectionMatrix() });
+        }
+
+        window.closeModal = function() {
+            isModalOpen = false; document.getElementById('contact-overlay').classList.remove('active'); document.body.classList.remove('modal-open');
+            gsap.to(ditherMat.uniforms.uOpacity, { value: 0.0, duration: 0.5, onComplete: () => { ditherPlane.visible = false; } });
+            gsap.to(camera, { zoom: 1.0, duration: 1.0, ease: "power2.out", onUpdate: () => camera.updateProjectionMatrix() });
+        }
+
+        // *** SUBMIT FUNCTION CONNECTED TO API ***
+        window.submitForm = async function() {
+            const btn = document.getElementById('submit-btn');
+            const form = document.getElementById('contact-form');
+            const success = document.getElementById('success-view');
+            const heading = document.getElementById('modal-heading');
+
+            const company = document.getElementById('company').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const division = document.getElementById('division').value;
+
+            // Simple validation
+            if(!company || !email || !phone) return alert('Please fill in all fields.');
+
+            // UI Loading State
+            btn.classList.add('loading');
+            btn.innerText = 'PROCESSING...';
+            btn.disabled = true;
+
+            try {
+                // CHANGE THIS URL IF DEPLOYING (e.g., https://your-site.com/api/submit)
+                const response = await fetch('http://localhost:3000/api/submit', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company, email, phone, division })
+                });
+
+                if(response.ok) {
+                    // Success Animation
+                    gsap.to(form, {
+                        opacity: 0, duration: 0.3,
+                        onComplete: () => {
+                            form.style.display = 'none'; success.style.display = 'block'; heading.innerText = "System Confirmed";
+                            gsap.fromTo(success, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 });
+                        }
+                    });
+                } else {
+                    alert('Error connecting to system. Please try again.');
+                    btn.classList.remove('loading'); btn.innerText = 'INITIALIZE SCAN'; btn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection error. Ensure backend is running.');
+                btn.classList.remove('loading'); btn.innerText = 'INITIALIZE SCAN'; btn.disabled = false;
+            }
+        }
+
+        // --- RENDER ---
+        const clock = new THREE.Clock();
+        function updateTags() {
+            if(isModalOpen) return;
+            rooms.forEach(r => {
+                const v = new THREE.Vector3(); r.mesh.getWorldPosition(v); v.project(camera);
+                const x=(v.x*.5+.5)*window.innerWidth, y=(-(v.y*.5)+.5)*window.innerHeight;
+                if(x>0&&y>0&&x<window.innerWidth&&y<window.innerHeight) {
+                    const el=document.getElementById(`tag-${r.id}`); el.style.left=`${x}px`; el.style.top=`${y}px`;
+                }
+            });
+        }
+        function animate() {
+            requestAnimationFrame(animate); const t = clock.getElapsedTime();
+            if(!isModalOpen) { camera.position.x = 10 + Math.sin(t * 0.2) * 0.5; camera.position.z = 10 + Math.cos(t * 0.2) * 0.5; camera.lookAt(-5, 0, -2); } 
+            else { camera.position.x = 10 + Math.sin(t * 0.05) * 0.1; }
+            ditherMat.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+            updateTags(); renderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', () => {
+            const a = window.innerWidth / window.innerHeight; camera.left = -d * a; camera.right = d * a; camera.top = d; camera.bottom = -d;
+            camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>
