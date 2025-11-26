@@ -57,16 +57,16 @@
             display: block;
         }
 
+        /* UNIFORM BUTTON STYLES */
         .btn {
             pointer-events: auto; cursor: pointer;
             background: var(--kalk-text); color: white; padding: 12px 24px;
             border-radius: 4px; font-weight: 600; text-decoration: none;
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             border: 1px solid transparent; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            font-family: 'Inter', sans-serif;
-            white-space: nowrap;
+            font-family: 'Inter', sans-serif; white-space: nowrap; font-size: 0.95rem;
         }
-        .btn:hover { background: var(--kalk-blue); transform: translateY(-2px); }
+        .btn:hover { background: var(--kalk-blue); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(35, 76, 148, 0.2); }
 
         .lang-btn {
             pointer-events: auto; cursor: pointer;
@@ -75,6 +75,9 @@
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             font-family: 'Inter', sans-serif; font-size: 0.9rem;
         }
+        .lang-btn:hover { background: rgba(0,0,0,0.05); }
+
+        .nav-group { display: flex; gap: 12px; align-items: center; }
 
         .hero-content { 
             pointer-events: auto; max-width: 600px; 
@@ -116,6 +119,78 @@
         .row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 8px; opacity: 0.3; transition: opacity 0.3s; color: var(--kalk-text); font-weight: 600; }
         .row.active { opacity: 1; }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* --- ABOUT / TEAM DRAWER --- */
+        #about-drawer {
+            position: fixed; top: 0; right: 0; width: 60%; height: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 50;
+            transform: translateX(110%);
+            border-left: 1px solid rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            padding: 80px 60px; box-sizing: border-box;
+            overflow-y: auto;
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: -20px 0 60px rgba(0,0,0,0.08);
+        }
+
+        #about-drawer.active { transform: translateX(0); }
+
+        /* Slogan Styling */
+        .drawer-slogan {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.02em;
+            margin-bottom: 60px; color: var(--kalk-blue);
+            padding-bottom: 40px; border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .drawer-close {
+            position: absolute; top: 30px; right: 30px;
+            background: none; border: 1px solid #ddd; border-radius: 50%;
+            width: 40px; height: 40px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; color: var(--kalk-text);
+        }
+        .drawer-close:hover { background: var(--kalk-text); color: white; border-color: var(--kalk-text); }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem;
+            color: var(--kalk-text); margin-bottom: 30px; margin-top: 0;
+            letter-spacing: -0.02em; text-transform: uppercase;
+        }
+
+        /* Business Grid */
+        .b-grid { display: grid; grid-template-columns: 1fr; gap: 30px; margin-bottom: 60px; }
+        .b-item { background: #f9fafb; padding: 24px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.03); }
+        .b-item h4 {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            color: var(--kalk-blue); margin: 0 0 12px 0; text-transform: uppercase;
+            letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;
+        }
+        .b-item p { font-size: 1rem; color: #444; margin: 0; line-height: 1.6; opacity: 1; max-width: 100%; }
+
+        /* Team Cards */
+        .team-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding-bottom: 40px; }
+        .team-card {
+            background: #fff; border: 1px solid #eee; padding: 24px;
+            transition: all 0.3s ease; cursor: default; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .team-card:hover { transform: translateY(-5px); border-color: var(--kalk-blue); box-shadow: 0 10px 30px rgba(35, 76, 148, 0.1); }
+
+        .team-role {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            color: var(--kalk-blue); margin-bottom: 8px; display: block; text-transform: uppercase; font-weight: 700;
+        }
+        .team-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; margin: 0 0 8px 0; }
+        .team-exp { font-size: 0.85rem; color: #666; line-height: 1.4; margin: 0; }
+
+        /* Decorative corners */
+        .corner { position: absolute; width: 8px; height: 8px; border: 1px solid var(--kalk-blue); opacity: 0; transition: opacity 0.3s; }
+        .c-tl { top: 4px; left: 4px; border-right: 0; border-bottom: 0; }
+        .c-br { bottom: 4px; right: 4px; border-left: 0; border-top: 0; }
+        .team-card:hover .corner { opacity: 1; }
 
         /* --- CONTACT MODAL --- */
         #contact-overlay {
@@ -203,7 +278,9 @@
             }
             
             /* Navigation adjustments */
-            nav .btn { display: none; }
+            nav { margin-bottom: 0; }
+            .nav-group .btn { display: none; } /* Hide text buttons on mobile, show icon trigger */
+            .lang-btn { font-size: 0.8rem; padding: 6px 12px; }
             .logo { height: 32px; }
             
             /* Hero Content - Move to top */
@@ -226,7 +303,7 @@
             }
 
             /* Buttons - make clickable */
-            .hero-content .btn { pointer-events: auto; width: 100%; text-align: center; }
+            .hero-content .btn { pointer-events: auto; width: 100%; text-align: center; display: block; box-sizing: border-box;}
 
             /* Legend - Move to bottom left */
             .breakdown { 
@@ -242,10 +319,27 @@
             .room-tag .value { font-size: 0.8rem; }
             
             /* Modal Mobile Fixes */
-            .modal-card { 
-                padding: 24px; 
+            .modal-card {
+                padding: 30px 24px;
                 max-height: 85vh;
-                margin-bottom: 0;
+                width: 90%;
+            }
+            .modal-title h2 { font-size: 1.5rem; }
+
+            /* About Drawer Mobile */
+            #about-drawer { width: 100%; padding: 70px 24px; }
+            .drawer-slogan { font-size: 2rem; margin-bottom: 40px; }
+            .b-grid { grid-template-columns: 1fr; gap: 20px; }
+            .team-grid { grid-template-columns: 1fr; gap: 20px; } /* Single column for team */
+
+            /* Floating Action Button for About on Mobile */
+            .mobile-menu-btn {
+                display: block; position: fixed; bottom: 24px; right: 24px;
+                background: var(--kalk-text); color: white; width: 48px; height: 48px;
+                border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.2rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 40; pointer-events: auto;
+                cursor: pointer;
             }
         }
     </style>
@@ -255,8 +349,9 @@
     <div id="ui-layer">
         <nav class="nav-anim">
             <img src="logo.png" alt="KALK" class="logo">
-            <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="nav-group">
                 <button onclick="toggleLanguage()" class="lang-btn" id="lang-toggle">FR</button>
+                <button onclick="toggleAbout()" class="btn" data-i18n="nav.about">About</button>
                 <a onclick="openModal()" class="btn" data-i18n="nav.cta">Get Early Access</a>
             </div>
         </nav>
@@ -272,6 +367,66 @@
             <div class="row" id="row-0"><span data-i18n="materials.hardwood">HARDWOOD</span> <div class="dot" style="background:var(--accent-1)"></div></div>
             <div class="row" id="row-1"><span data-i18n="materials.tile">CERAMIC TILE</span> <div class="dot" style="background:var(--accent-2)"></div></div>
             <div class="row" id="row-2"><span data-i18n="materials.carpet">CARPET</span> <div class="dot" style="background:var(--accent-3)"></div></div>
+        </div>
+
+        <div class="mobile-menu-btn" onclick="toggleAbout()" style="display:none;">?</div>
+        <script>if(window.innerWidth < 768) document.querySelector('.mobile-menu-btn').style.display = 'flex';</script>
+    </div>
+
+    <div id="about-drawer">
+        <button class="drawer-close" onclick="toggleAbout()">×</button>
+
+        <div class="drawer-slogan" data-i18n="about.slogan">Estimate less, Build with success.</div>
+
+        <div class="b-grid">
+            <div class="b-item">
+                <h4 data-i18n="about.problemLabel">THE PROBLEM</h4>
+                <p data-i18n="about.problemDesc">Manual takeoffs are the bottleneck of construction. They are slow, prone to human error, and cost contractors billions in lost bids and material overages annually.</p>
+            </div>
+            <div class="b-item">
+                <h4 data-i18n="about.solutionLabel">THE SOLUTION</h4>
+                <p data-i18n="about.solutionDesc">KALK uses computer vision to analyze floor plans instantly. We convert your plans into actionable data, identifying rooms, materials, and square footage.</p>
+            </div>
+            <div class="b-item">
+                <h4 data-i18n="about.targetLabel">FOR WHOM</h4>
+                <p data-i18n="about.targetDesc">Built for Flooring Specialists first and we're working on other divisions who want to stop counting and start building.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Leadership</h2>
+
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="corner c-tl"></div><div class="corner c-br"></div>
+                <div>
+                    <span class="team-role" data-i18n="team.ceoRole">CEO / ENGINEERING</span>
+                    <h3 class="team-name">Charles Simard</h3>
+                </div>
+            </div>
+
+            <div class="team-card">
+                <div class="corner c-tl"></div><div class="corner c-br"></div>
+                <div>
+                    <span class="team-role" data-i18n="team.ctoRole">CTO / SOFTWARE ENG.</span>
+                    <h3 class="team-name">Daniil Sirbu</h3>
+                </div>
+            </div>
+
+            <div class="team-card">
+                <div class="corner c-tl"></div><div class="corner c-br"></div>
+                <div>
+                    <span class="team-role" data-i18n="team.cooRole">COO / ENGINEERING</span>
+                    <h3 class="team-name">Timothé Bouillet</h3>
+                </div>
+            </div>
+
+            <div class="team-card">
+                <div class="corner c-tl"></div><div class="corner c-br"></div>
+                <div>
+                    <span class="team-role" data-i18n="team.croRole">CRO & CFO / ENGINEERING</span>
+                    <h3 class="team-name">Benoit Dubé</h3>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -344,7 +499,7 @@
         // --- TRANSLATIONS ---
         const translations = {
             en: {
-                nav: { cta: "Get Early Access" },
+                nav: { cta: "Get Early Access", about: "About" },
                 hero: {
                     title1: "The end of",
                     title2: "manual",
@@ -362,6 +517,21 @@
                     hardwood: "HARDWOOD",
                     tile: "CERAMIC TILE",
                     carpet: "CARPET"
+                },
+                about: {
+                    slogan: "Estimate less, Build with success.",
+                    problemLabel: "THE PROBLEM",
+                    problemDesc: "Manual takeoffs are the bottleneck of construction. They are slow, prone to human error, and cost contractors billions in lost bids and material overages annually.",
+                    solutionLabel: "THE SOLUTION",
+                    solutionDesc: "KALK uses computer vision to analyze floor plans instantly. We convert your plans into actionable data, identifying rooms, materials, and square footage.",
+                    targetLabel: "FOR WHOM",
+                    targetDesc: "Built for Flooring Specialists first and we're working on other divisions who want to stop counting and start building."
+                },
+                team: {
+                    ceoRole: "CEO / CONST. ENGINEERING",
+                    ctoRole: "CTO / SOFTWARE ENG.",
+                    cooRole: "COO / CONST. ENGINEERING",
+                    croRole: "CRO & CFO / CONST. ENGINEERING"
                 },
                 modal: {
                     systemAccess: "SYSTEM ACCESS",
@@ -401,7 +571,7 @@
                 }
             },
             fr: {
-                nav: { cta: "Obtenir un Accès Anticipé" },
+                nav: { cta: "Obtenir un Accès Anticipé", about: "À Propos" },
                 hero: {
                     title1: "La fin des",
                     title2: "estimations",
@@ -419,6 +589,21 @@
                     hardwood: "BOIS FRANC",
                     tile: "CÉRAMIQUE",
                     carpet: "TAPIS"
+                },
+                about: {
+                    slogan: "Moins d'estimation, Plus de construction.",
+                    problemLabel: "LE PROBLÈME",
+                    problemDesc: "Les relevés manuels sont le goulot d'étranglement. Ils sont lents, sujets à l'erreur humaine et coûtent des milliards aux entrepreneurs en soumissions perdues.",
+                    solutionLabel: "LA SOLUTION",
+                    solutionDesc: "KALK utilise la vision par ordinateur pour analyser instantanément les plans. Nous convertissons vos plans en données exploitables : pièces, matériaux et surfaces.",
+                    targetLabel: "POUR QUI",
+                    targetDesc: "Conçu d'abord pour les spécialistes en revêtement de sol, nous développons pour d'autres divisions qui veulent arrêter de compter et commencer à construire."
+                },
+                team: {
+                    ceoRole: "PDG / GÉNIE DE LA CONSTRUCTION",
+                    ctoRole: "CTO / GÉNIE LOGICIEL",
+                    cooRole: "COO / GÉNIE DE LA CONSTRUCTION",
+                    croRole: "CRO & CFO / GÉNIE DE LA CONSTRUCTION"
                 },
                 modal: {
                     systemAccess: "ACCÈS SYSTÈME",
@@ -492,6 +677,12 @@
                 keys.forEach(key => value = value[key]);
                 el.placeholder = value;
             });
+        }
+
+        // --- UI LOGIC ---
+        function toggleAbout() {
+            document.getElementById('about-drawer').classList.toggle('active');
+            document.body.classList.toggle('modal-open');
         }
 
         // --- 3D CONFIGURATION ---
