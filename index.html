@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KALK | AI Construction Estimator</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@300;500;600&family=JetBrains+Mono:wght@400&display=swap');
@@ -27,6 +27,9 @@
             color: var(--kalk-text);
             font-family: 'Inter', sans-serif;
             overflow: hidden;
+            /* Prevent bounce on mobile */
+            overscroll-behavior: none;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* --- UI LAYER --- */
@@ -34,13 +37,19 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 10;
             display: flex; flex-direction: column;
-            justify-content: space-between; padding: 40px; box-sizing: border-box;
+            justify-content: space-between; 
+            padding: 40px; 
+            box-sizing: border-box;
             transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
         }
         
         body.modal-open #ui-layer { opacity: 0; pointer-events: none; filter: blur(4px); }
 
-        nav { display: flex; justify-content: space-between; align-items: center; pointer-events: auto; opacity: 0; }
+        nav { 
+            display: flex; justify-content: space-between; align-items: center; 
+            pointer-events: auto; opacity: 0; 
+            width: 100%;
+        }
 
         .logo {
             height: 50px;
@@ -55,6 +64,7 @@
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             border: 1px solid transparent; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             font-family: 'Inter', sans-serif;
+            white-space: nowrap;
         }
         .btn:hover { background: var(--kalk-blue); transform: translateY(-2px); }
 
@@ -65,27 +75,44 @@
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             font-family: 'Inter', sans-serif; font-size: 0.9rem;
         }
-        .lang-btn:hover { background: var(--kalk-text); color: white; }
 
-        .hero-content { pointer-events: auto; max-width: 600px; margin-top: auto; margin-bottom: 100px; position: relative; z-index: 20; }
-        h1 { font-family: 'Space Grotesk', sans-serif; font-size: 5rem; line-height: 0.9; margin: 0 0 24px 0; color: var(--kalk-text); opacity: 0; }
+        .hero-content { 
+            pointer-events: auto; max-width: 600px; 
+            margin-top: auto; margin-bottom: 80px; 
+            position: relative; z-index: 20; 
+        }
+
+        h1 { 
+            font-family: 'Space Grotesk', sans-serif; 
+            font-size: 5rem; line-height: 0.9; margin: 0 0 24px 0; 
+            color: var(--kalk-text); opacity: 0; letter-spacing: -0.03em;
+        }
         h1 span { color: var(--kalk-blue); display: inline-block; }
-        p { font-size: 1.1rem; line-height: 1.6; color: var(--kalk-text-sub); max-width: 450px; margin-bottom: 32px; opacity: 0; }
+        
+        p { 
+            font-size: 1.1rem; line-height: 1.5; color: var(--kalk-text-sub); 
+            max-width: 450px; margin-bottom: 32px; opacity: 0; 
+        }
 
         /* Tags & Legend */
         .room-tag {
             position: absolute; transform: translate(-50%, -50%);
             background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1);
-            backdrop-filter: blur(4px); padding: 8px 16px; border-radius: 4px;
+            backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 4px;
             font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem;
             opacity: 0; pointer-events: none; z-index: 15; color: var(--kalk-text);
             box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: opacity 0.5s ease;
+            white-space: nowrap;
         }
-        .room-tag strong { display: block; font-size: 0.7rem; color: #999; letter-spacing: 1px; margin-bottom: 2px; }
-        .room-tag .value { font-size: 1.2rem; font-weight: 700; }
+        .room-tag strong { display: block; font-size: 0.65rem; color: #999; letter-spacing: 1px; margin-bottom: 2px; }
+        .room-tag .value { font-size: 1.1rem; font-weight: 700; }
         .tag-accent-1 .value { color: var(--accent-1); } .tag-accent-2 .value { color: var(--accent-2); } .tag-accent-3 .value { color: var(--accent-3); }
 
-        .breakdown { position: absolute; bottom: 40px; right: 40px; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; text-align: right; pointer-events: none; z-index: 20; }
+        .breakdown { 
+            position: absolute; bottom: 40px; right: 40px; 
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; 
+            text-align: right; pointer-events: none; z-index: 20; 
+        }
         .row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 8px; opacity: 0.3; transition: opacity 0.3s; color: var(--kalk-text); font-weight: 600; }
         .row.active { opacity: 1; }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -96,15 +123,17 @@
             z-index: 100; display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; visibility: hidden;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 20px; box-sizing: border-box;
         }
         #contact-overlay.active { opacity: 1; pointer-events: auto; visibility: visible; }
 
         .modal-card {
-            background: rgba(255, 255, 255, 0.95); width: 100%; max-width: 500px; padding: 48px;
+            background: rgba(255, 255, 255, 0.98); width: 100%; max-width: 500px; padding: 48px;
             border-radius: 2px; position: relative;
             transform: translateY(40px) scale(0.95);
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+            max-height: 90vh; overflow-y: auto; /* Scroll for mobile */
         }
         #contact-overlay.active .modal-card { transform: translateY(0) scale(1); }
 
@@ -114,42 +143,42 @@
         
         .close-btn { 
             background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; 
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-            border: 1px solid transparent; transition: all 0.2s;
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; 
+            border: 1px solid transparent; transition: all 0.2s; margin-top: -10px; margin-right: -10px;
         }
-        .close-btn:hover { color: var(--kalk-text); border: 1px solid #ddd; }
 
         .input-group { margin-bottom: 20px; position: relative; }
         .input-group label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #666; margin-bottom: 6px; text-transform: uppercase; }
         .input-field {
             width: 100%; box-sizing: border-box; background: #f0f2f5; border: 1px solid transparent;
-            padding: 12px 16px; font-size: 1rem; color: var(--kalk-text); font-family: 'Inter', sans-serif;
+            padding: 12px 16px; font-size: 16px; /* 16px prevents iOS zoom on focus */
+            color: var(--kalk-text); font-family: 'Inter', sans-serif;
             transition: all 0.3s; border-radius: 2px;
+            -webkit-appearance: none;
         }
         .input-field:focus { background: #fff; border-color: var(--kalk-blue); outline: none; box-shadow: 0 0 0 4px rgba(35, 76, 148, 0.1); }
-
-        /* Error state */
-        .input-field.error { border-color: var(--error-red); background: #fff5f5; }
-        .error-msg { color: var(--error-red); font-size: 0.8rem; margin-top: 5px; display: none; }
+        
+        select.input-field {
+             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.7-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 0.65em auto;
+            padding-right: 2.5rem;
+        }
 
         .submit-btn {
             width: 100%; background: var(--kalk-blue); color: white;
             padding: 16px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem;
             border: none; cursor: pointer; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;
             transition: background 0.3s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .submit-btn:hover { background: #1a3a75; }
-        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
-        .submit-btn::after { content: "→"; font-family: sans-serif; }
-        .submit-btn.loading::after { content: "..."; }
 
         .success-view { display: none; opacity: 0; text-align: center; padding: 20px 0; }
         .success-icon { font-size: 3rem; color: var(--success-green); margin-bottom: 20px; display: inline-block; }
         .success-view h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; margin: 0 0 10px 0; }
         .success-view p { font-size: 1rem; color: #666; margin-bottom: 20px; line-height: 1.5; opacity: 1; }
         .back-btn { background: transparent; color: var(--kalk-text); border: 1px solid #ddd; width: auto; padding: 12px 24px; margin: 0 auto; display: inline-block; }
-        .back-btn:hover { background: #f5f5f5; }
-        .back-btn::after { content: ""; }
 
         .noise-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 6px;
@@ -163,6 +192,61 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 75% 50%, transparent 20%, rgba(245, 247, 250, 0.4) 60%, #f5f7fa 100%);
             pointer-events: none; z-index: 5;
+        }
+
+        /* --- MOBILE BREAKPOINTS --- */
+        @media (max-width: 768px) {
+            /* UI Layer Padding */
+            #ui-layer { 
+                padding: 24px; 
+                justify-content: flex-start; /* Push content to top */
+            }
+            
+            /* Navigation adjustments */
+            nav .btn { display: none; }
+            .logo { height: 32px; }
+            
+            /* Hero Content - Move to top */
+            .hero-content { 
+                margin-top: 60px; /* Space from nav */
+                margin-bottom: 0; 
+                width: 100%;
+                pointer-events: none; /* Let clicks pass through to 3D if needed */
+            }
+            
+            /* Typography sizing */
+            h1 { font-size: 3rem; margin-bottom: 12px; }
+            p { 
+                font-size: 1rem; 
+                margin-bottom: 20px; 
+                background: none; 
+                backdrop-filter: none;
+                padding: 0;
+                text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+            }
+
+            /* Buttons - make clickable */
+            .hero-content .btn { pointer-events: auto; width: 100%; text-align: center; }
+
+            /* Legend - Move to bottom left */
+            .breakdown { 
+                top: auto; bottom: 20px; right: auto; left: 24px;
+                text-align: left;
+            }
+            .row { justify-content: flex-start; font-size: 0.75rem; }
+            .row .dot { order: -1; } /* Move dot to left of text */
+
+            /* Tags - Scale down */
+            .room-tag { padding: 4px 8px; transform: scale(0.85); transform-origin: center bottom; }
+            .room-tag strong { font-size: 0.55rem; }
+            .room-tag .value { font-size: 0.8rem; }
+            
+            /* Modal Mobile Fixes */
+            .modal-card { 
+                padding: 24px; 
+                max-height: 85vh;
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
@@ -215,12 +299,10 @@
                     <input type="email" id="email" class="input-field" data-i18n-placeholder="form.emailPlaceholder" placeholder="estimator@company.com" required>
                     <div class="error-msg" id="email-error" data-i18n="form.emailError">Please enter a valid email.</div>
                 </div>
-                <!-- NEW PHONE FIELD -->
                 <div class="input-group">
                     <label data-i18n="form.phone">Phone Number</label>
                     <input type="tel" id="phone" class="input-field" data-i18n-placeholder="form.phonePlaceholder" placeholder="+1 (555) 000-0000" required>
                 </div>
-                <!-- NEW DIVISIONS DROPDOWN -->
                 <div class="input-group">
                     <label data-i18n="form.division">Construction Division</label>
                     <select id="division" class="input-field">
@@ -417,9 +499,12 @@
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene(); scene.background = CONFIG.colorBg;
         scene.fog = new THREE.Fog(CONFIG.colorBg, 20, 100);
-        const aspect = window.innerWidth / window.innerHeight;
+        
+        // Initial setup for camera (will be updated by resize logic)
         const d = 16;
+        const aspect = window.innerWidth / window.innerHeight;
         const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+        
         camera.position.set(20, 20, 20); camera.lookAt(0, 0, 0);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -486,7 +571,6 @@
             gsap.to(camera, { zoom: 1.0, duration: 1.0, ease: "power2.out", onUpdate: () => camera.updateProjectionMatrix() });
         }
 
-        // *** SUBMIT FUNCTION CONNECTED TO API ***
         window.submitForm = async function() {
             const btn = document.getElementById('submit-btn');
             const form = document.getElementById('contact-form');
@@ -498,16 +582,13 @@
             const phone = document.getElementById('phone').value;
             const division = document.getElementById('division').value;
 
-            // Simple validation
             if(!company || !email || !phone) return alert('Please fill in all fields.');
 
-            // UI Loading State
             btn.classList.add('loading');
             btn.innerText = 'PROCESSING...';
             btn.disabled = true;
 
             try {
-                // Use relative URL to work both locally and on Vercel
                 const response = await fetch('/api/submit', { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -515,7 +596,6 @@
                 });
 
                 if(response.ok) {
-                    // Success Animation
                     gsap.to(form, {
                         opacity: 0, duration: 0.3,
                         onComplete: () => {
@@ -534,34 +614,91 @@
             }
         }
 
-        // --- RENDER ---
+        // --- RENDER & RESPONSIVE LOGIC ---
         const clock = new THREE.Clock();
+
         function updateTags() {
             if(isModalOpen) return;
+            
+            // Hide tags if they are behind the camera (simple check)
             rooms.forEach(r => {
-                const v = new THREE.Vector3(); r.mesh.getWorldPosition(v); v.project(camera);
-                const x=(v.x*.5+.5)*window.innerWidth, y=(-(v.y*.5)+.5)*window.innerHeight;
-                if(x>0&&y>0&&x<window.innerWidth&&y<window.innerHeight) {
-                    const el=document.getElementById(`tag-${r.id}`); el.style.left=`${x}px`; el.style.top=`${y}px`;
+                const v = new THREE.Vector3(); 
+                r.mesh.getWorldPosition(v); 
+                v.project(camera);
+                
+                const x = (v.x * .5 + .5) * window.innerWidth;
+                const y = (-(v.y * .5) + .5) * window.innerHeight;
+                const el = document.getElementById(`tag-${r.id}`);
+
+                // Basic frustum culling for tags
+                if(Math.abs(v.z) < 1 && x > 0 && x < window.innerWidth && y > 0 && y < window.innerHeight) {
+                    el.style.display = 'block';
+                    el.style.left = `${x}px`; 
+                    el.style.top = `${y}px`;
+                } else {
+                    el.style.display = 'none';
                 }
             });
         }
-        function animate() {
-            requestAnimationFrame(animate); const t = clock.getElapsedTime();
-            if(!isModalOpen) { camera.position.x = 10 + Math.sin(t * 0.2) * 0.5; camera.position.z = 10 + Math.cos(t * 0.2) * 0.5; camera.lookAt(-5, 0, -2); } 
-            else { camera.position.x = 10 + Math.sin(t * 0.05) * 0.1; }
-            ditherMat.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
-            updateTags(); renderer.render(scene, camera);
-        }
-        animate();
-        window.addEventListener('resize', () => {
-    const a = window.innerWidth / window.innerHeight; 
-    camera.left = -d * a; camera.right = d * a; 
-    camera.top = d; 
-    camera.bottom = -d * 2; // <--- Updated here
-    camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
-});
 
+        function updateCamera() {
+            const aspect = window.innerWidth / window.innerHeight;
+            const isMobile = window.innerWidth < 768;
+
+            // On mobile, we zoom out (increase d) so the house fits
+            // We also change the frustum to accommodate portrait mode
+            const d_mobile = 22; // Zoom out more on mobile
+            const d_desktop = 16;
+            
+            const effectiveD = isMobile ? d_mobile : d_desktop;
+
+            camera.left = -effectiveD * aspect;
+            camera.right = effectiveD * aspect;
+            camera.top = effectiveD;
+            camera.bottom = -effectiveD;
+            
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Update shader resolution
+            if(ditherMat) ditherMat.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate); 
+            const t = clock.getElapsedTime();
+            const isMobile = window.innerWidth < 768;
+
+            if(!isModalOpen) { 
+                // CAMERA MOVEMENT
+                if(isMobile) {
+                    // MOBILE: Move camera slightly, keep angle steep
+                    camera.position.x = 20 + Math.sin(t * 0.1) * 2; 
+                    camera.position.z = 20 + Math.cos(t * 0.1) * 2; 
+                    // CRITICAL: Look at a point offset from 0,0,0 to push model DOWN
+                    // Looking at (5, 0, -5) pushes the visual center up, pushing model down
+                    camera.lookAt(8, 0, -8); 
+                } else {
+                    // DESKTOP: Standard rotation
+                    camera.position.x = 20 + Math.sin(t * 0.2) * 0.5; 
+                    camera.position.z = 20 + Math.cos(t * 0.2) * 0.5; 
+                    camera.lookAt(-5, 0, -2); // Offset to put text on left
+                }
+            } else { 
+                // Modal Open State (subtle breathing)
+                camera.position.x = 20 + Math.sin(t * 0.05) * 0.1; 
+            }
+
+            updateTags(); 
+            renderer.render(scene, camera);
+        }
+
+        // Initial setup
+        updateCamera();
+        animate();
+
+        // Resize Listener
+        window.addEventListener('resize', updateCamera);
     </script>
 </body>
 </html>
